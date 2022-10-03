@@ -1,0 +1,20 @@
+template: true   # required for local templates.
+valuesFilePath: ./values.yml
+
+resources:
+  - name: myFirstRepo
+    type: GitRepo
+    configuration:
+      # SCM integration where the repository is located
+      gitProvider: {{ .Values.myRepo.gitProvider }} # this will be replaced from values.yml
+      # Repository path, including org name/repo name
+      path: {{ .Values.myRepo.path }} # this will be replaced from values.yml
+      branches:
+        # Specifies which branches will trigger dependent steps
+        include: master
+
+  - name: cron_trigger
+    type: CronTrigger
+    configuration:
+      interval: '0 0 * * *'     # Once a day
+
