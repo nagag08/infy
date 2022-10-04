@@ -10,6 +10,8 @@ pipelines:
           type: utils/ping
           configuration:
             affinityGroup: together
+            inputResources:
+              - name: hc_crontab
             integrations:
             {{- range .Values.jpdIntegrationName }}
               - name: "{{ . }}"
