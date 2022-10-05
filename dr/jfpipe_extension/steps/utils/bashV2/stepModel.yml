@@ -1,5 +1,0 @@
-description: configure the JFrog CLI with an Access token
- 
-configuration:
-  cliPlugin:
-    type: String
