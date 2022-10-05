@@ -2,8 +2,8 @@ myRepo:
   gitProvider: ych_github_pipe
   path: cyan21/test-pipelines
 jpdIntegrationName:
-  - yann_platform_token
-  - yannsbx_platform_access
+  - main_site 
+  - dr_site 
 
 # automation config
 yqVersion: v4.27.5
