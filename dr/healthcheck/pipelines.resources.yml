@@ -16,5 +16,5 @@ resources:
   - name: hc_crontab
     type: CronTrigger
     configuration:
-      interval: '*/15 * * * *'     # every 15 min
+      interval: '0 0 1 1 1'     # every 1 year
 
