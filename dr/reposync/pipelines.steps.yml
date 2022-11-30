@@ -163,3 +163,33 @@ pipelines:
             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
             - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
             - rm -rf {{ .Values.jpdDr }}   
+      - name: CreateProjects
+        type: utils/bashV2
+        configuration:
+          affinityGroup: together
+          inputSteps:
+            - name: createLocalRepositories
+            - name: createRemoteRepositories
+            - name: createVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          projPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+        execution:
+          onExecute:
+            - jf {{ .Values.projPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+      - name: DeleteProjects
+        type: utils/bashV2
+        configuration:
+          affinityGroup: together
+          inputSteps:
+            - name: deleteLocalRepositories
+            - name: deleteRemoteRepositories
+            - name: deleteVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          projPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+        execution:
+          onExecute:
+            - jf {{ .Values.projPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}

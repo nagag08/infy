@@ -15,3 +15,6 @@ statusFile: status.yml
 cliPlugin:
   name: repo-sync
   version: 0.1.0
+projectPlugin:
+  name: proj-sync
+  version: 0.1.0
