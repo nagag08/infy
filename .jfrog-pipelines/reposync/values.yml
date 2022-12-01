@@ -1,0 +1,20 @@
+myRepo:
+  gitProvider: ych_github_pipe
+  path: cyan21/test-pipelines
+# jpdIntegrationName:
+#   - yannsbx_platform_access
+#   - yann_platform_token
+jpdMain: main_site 
+jpdDr: dr_site 
+
+# automation config
+# Health check is running every 15 min (900 seconds)
+HealthCheckIntervalInSec: 900
+automationRepo: jfrog-automation
+statusFile: status.yml
+cliPlugin:
+  name: repo-sync
+  version: 0.1.0
+projectPlugin:
+  name: proj-sync
+  version: 0.1.0
