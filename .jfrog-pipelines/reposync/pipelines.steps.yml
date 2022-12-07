@@ -108,7 +108,7 @@ pipelines:
       - name: createVirtualRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: CreateUpdateProjects
+          # affinityGroup: CreateUpdateProjects
           inputSteps:
             - name: createLocalRepositories
             - name: createRemoteRepositories
@@ -150,7 +150,7 @@ pipelines:
       - name: updateVirtualRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: CreateUpdateProjects
+          # affinityGroup: together
           inputSteps:
             - name: UpdateLocalRepositories
             - name: updateRemoteRepositories

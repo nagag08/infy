@@ -5,6 +5,7 @@ pipelines:
   - name: syncDR
     configuration:
       jfrogCliVersion: 2
+      affinityGroup: together
       environmentVariables: 
         readOnly:
           JFROG_CLI_PLUGINS_SERVER: {{ .Values.jpdMain }}
@@ -14,7 +15,7 @@ pipelines:
       - name: Ping
         type: utils/ping
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputResources:
             - name: sync_cron
           integrations:
@@ -28,7 +29,7 @@ pipelines:
       - name: checkOutages
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: Ping
           integrations:
@@ -66,20 +67,20 @@ pipelines:
       - name: CreateUpdateProjects
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: checkOutages
           integrations:
             - name: {{ .Values.jpdMain }}
             - name: {{ .Values.jpdDr }}
-          projectPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+          cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
             - jf {{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
       - name: createLocalRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: CreateUpdateProjects
           integrations:
@@ -94,7 +95,7 @@ pipelines:
       - name: createRemoteRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: CreateUpdateProjects
           integrations:
@@ -107,7 +108,7 @@ pipelines:
       - name: createVirtualRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: CreateUpdateProjects
+          # affinityGroup: CreateUpdateProjects
           inputSteps:
             - name: createLocalRepositories
             - name: createRemoteRepositories
@@ -121,7 +122,7 @@ pipelines:
       - name: UpdateLocalRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: createVirtualRepositories
           integrations:
@@ -136,7 +137,7 @@ pipelines:
       - name: updateRemoteRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: createVirtualRepositories
           integrations:
@@ -149,7 +150,7 @@ pipelines:
       - name: updateVirtualRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: CreateUpdateProjects
+          # affinityGroup: together
           inputSteps:
             - name: UpdateLocalRepositories
             - name: updateRemoteRepositories
@@ -163,7 +164,7 @@ pipelines:
       - name: deleteLocalRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: updateVirtualRepositories
           integrations:
@@ -182,7 +183,7 @@ pipelines:
       - name: deleteRemoteRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: updateVirtualRepositories
           integrations:
@@ -201,7 +202,7 @@ pipelines:
       - name: deleteVirtualRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: deleteLocalRepositories
             - name: deleteRemoteRepositories
@@ -221,7 +222,7 @@ pipelines:
       - name: DeleteProjects
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: deleteLocalRepositories
             - name: deleteRemoteRepositories
@@ -229,7 +230,7 @@ pipelines:
           integrations:
             - name: {{ .Values.jpdMain }}
             - name: {{ .Values.jpdDr }}
-          projectPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+          cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
             - jf {{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
