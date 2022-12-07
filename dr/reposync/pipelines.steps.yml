@@ -75,7 +75,7 @@ pipelines:
           projPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
-            - jf {{ .Values.projPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+            - jf {{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
       - name: createLocalRepositories
         type: utils/bashV2
         configuration:
@@ -232,4 +232,4 @@ pipelines:
           projPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
-            - jf {{ .Values.projPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+            - jf {{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
