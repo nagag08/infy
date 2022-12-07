@@ -76,7 +76,7 @@ pipelines:
           cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
-            - jf {{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+            - /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
       - name: createLocalRepositories
         type: utils/bashV2
         configuration:
@@ -133,7 +133,7 @@ pipelines:
           onExecute:
             - jf c s
             - jf {{ .Values.cliPlugin.name }} -v 
-            - jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+            - jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
       - name: updateRemoteRepositories
         type: utils/bashV2
         configuration:
@@ -146,7 +146,7 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+            - jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
       - name: updateVirtualRepositories
         type: utils/bashV2
         configuration:
@@ -160,7 +160,7 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
       - name: deleteLocalRepositories
         type: utils/bashV2
         configuration:
@@ -233,4 +233,4 @@ pipelines:
           cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
-            - jf {{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+            - /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
