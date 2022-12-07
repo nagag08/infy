@@ -72,7 +72,7 @@ pipelines:
           integrations:
             - name: {{ .Values.jpdMain }}
             - name: {{ .Values.jpdDr }}
-          projPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+          projectPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
             - jf {{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
@@ -229,7 +229,7 @@ pipelines:
           integrations:
             - name: {{ .Values.jpdMain }}
             - name: {{ .Values.jpdDr }}
-          projPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+          projectPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
             - jf {{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
