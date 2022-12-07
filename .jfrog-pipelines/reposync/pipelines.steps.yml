@@ -63,12 +63,25 @@ pipelines:
                   echo "[WARN] File {{ .Values.automationRepo }}/{{ .Values.statusFile }} : canUpdateDR=false; No sync will be pushed to the DR."
                   exit 2
               fi
-      - name: createLocalRepositories
+      - name: CreateUpdateProjects
         type: utils/bashV2
         configuration:
           affinityGroup: together
           inputSteps:
             - name: checkOutages
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          projPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+        execution:
+          onExecute:
+            - jf {{ .Values.projPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+      - name: createLocalRepositories
+        type: utils/bashV2
+        configuration:
+          affinityGroup: together
+          inputSteps:
+            - name: CreateUpdateProjects
           integrations:
             - name: {{ .Values.jpdMain }}
             - name: {{ .Values.jpdDr }}
@@ -83,7 +96,7 @@ pipelines:
         configuration:
           affinityGroup: together
           inputSteps:
-            - name: checkOutages
+            - name: CreateUpdateProjects
           integrations:
             - name: {{ .Values.jpdMain }}
             - name: {{ .Values.jpdDr }}
@@ -94,7 +107,7 @@ pipelines:
       - name: createVirtualRepositories
         type: utils/bashV2
         configuration:
-          affinityGroup: together
+          affinityGroup: CreateUpdateProjects
           inputSteps:
             - name: createLocalRepositories
             - name: createRemoteRepositories
@@ -105,12 +118,54 @@ pipelines:
         execution:
           onExecute:
             - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false      
-      - name: deleteLocalRepositories
+      - name: UpdateLocalRepositories
         type: utils/bashV2
         configuration:
           affinityGroup: together
           inputSteps:
             - name: createVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf c s
+            - jf {{ .Values.cliPlugin.name }} -v 
+            - jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+      - name: updateRemoteRepositories
+        type: utils/bashV2
+        configuration:
+          affinityGroup: together
+          inputSteps:
+            - name: createVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+      - name: updateVirtualRepositories
+        type: utils/bashV2
+        configuration:
+          affinityGroup: CreateUpdateProjects
+          inputSteps:
+            - name: UpdateLocalRepositories
+            - name: updateRemoteRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
+        execution:
+          onExecute:
+            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+      - name: deleteLocalRepositories
+        type: utils/bashV2
+        configuration:
+          affinityGroup: together
+          inputSteps:
+            - name: updateVirtualRepositories
           integrations:
             - name: {{ .Values.jpdMain }}
             - name: {{ .Values.jpdDr }}
@@ -129,7 +184,7 @@ pipelines:
         configuration:
           affinityGroup: together
           inputSteps:
-            - name: createVirtualRepositories
+            - name: updateVirtualRepositories
           integrations:
             - name: {{ .Values.jpdMain }}
             - name: {{ .Values.jpdDr }}
@@ -163,21 +218,6 @@ pipelines:
             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
             - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
             - rm -rf {{ .Values.jpdDr }}   
-      - name: CreateProjects
-        type: utils/bashV2
-        configuration:
-          affinityGroup: together
-          inputSteps:
-            - name: createLocalRepositories
-            - name: createRemoteRepositories
-            - name: createVirtualRepositories
-          integrations:
-            - name: {{ .Values.jpdMain }}
-            - name: {{ .Values.jpdDr }}
-          projPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
-        execution:
-          onExecute:
-            - jf {{ .Values.projPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
       - name: DeleteProjects
         type: utils/bashV2
         configuration:
