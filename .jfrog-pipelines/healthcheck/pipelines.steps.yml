@@ -41,7 +41,7 @@ pipelines:
               - configure_jfrog_cli --artifactory-url "${!url}/artifactory" --access-token "${!token}" --server-name saas_dr
               - jf -v
               - jf c s
-              - jf rt ping
+              - jf rt ping || true
               - curl -L https://github.com/mikefarah/yq/releases/download/{{ .Values.yqVersion }}/yq_linux_amd64 -o yq && chmod +x yq && ./yq -V
             onExecute:
               - exists=$(jf rt dl {{ .Values.automationRepo }}/{{ .Values.statusFile }} . | jq -r ."totals"."success")
