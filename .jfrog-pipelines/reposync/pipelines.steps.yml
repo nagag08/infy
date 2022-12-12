@@ -207,9 +207,8 @@ pipelines:
                 - error
                 - success
           integrations:
-          {{- range .Values.jpdIntegrationName }}
-            - name: "{{ . }}"
-          {{- end }}
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
         execution:
           onStart:
             # - echo "Ping status = ${step_Ping_statusName}"
