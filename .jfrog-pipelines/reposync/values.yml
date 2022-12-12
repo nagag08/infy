@@ -12,6 +12,8 @@ jpdDr: dr_site
 HealthCheckIntervalInSec: 900
 automationRepo: jfrog-automation
 statusFile: status.yml
+from: SAAS_DR
+to: SAAS_MAIN
 yqVersion: v4.27.5
 cliPlugin:
   name: repo-sync
@@ -19,3 +21,4 @@ cliPlugin:
 projectPlugin:
   name: proj-sync
   version: 0.1.0
+
