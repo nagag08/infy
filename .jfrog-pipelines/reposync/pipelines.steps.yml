@@ -26,44 +26,6 @@ pipelines:
             - name: {{ .Values.jpdDr }}
           iteration: 2
           sleepBetweenIteration: 5
-      - name: checkOutages
-        type: utils/bashV2
-        configuration:
-          #affinityGroup: together
-          inputSteps:
-            - name: Ping
-          integrations:
-            - name: {{ .Values.jpdDr }}
-        execution:
-          onExecute:
-            - requestDateTime=$(jf rt s {{ .Values.automationRepo }}/{{ .Values.statusFile }} | jq -r ".[].props.requestDateTime[]")
-            - |
-              if [[ $requestDateTime -eq "" ]]; then 
-                echo "[WARN] {{ .Values.statusFile }} NOT found or "requestDateTime" properties could NOT be found . Check if the Health Check pipeline has run on the DR side"
-                exit 1              
-              fi
-            - canUpdateDR=$(jf rt s {{ .Values.automationRepo }}/{{ .Values.statusFile }} | jq -r ".[].props.canUpdateDR[]")
-            - |
-              if [[ $? -eq "" ]]; then 
-                echo "[WARN] "canUpdateDR" properties could NOT be found . Check if the Health Check pipeline has run on the DR side"
-                exit 1              
-              fi            
-            - epochNow=$(date +%s)
-            - echo $canUpdateDR
-            - interval=$(expr $epochNow - $requestDateTime)
-            - echo $epochNow
-            - echo $requestDateTime
-            - echo $interval
-            - |
-              if [[ $interval -gt {{ .Values.HealthCheckIntervalInSec }} ]] ; then 
-                  echo "[ERROR] the last update on the  {{ .Values.automationRepo }}/{{ .Values.statusFile }} was more than {{ .Values.HealthCheckIntervalInSec }} seconds."
-                  exit 1
-              fi 
-            - |
-              if [[ $canUpdateDR == "false" ]] ; then
-                  echo "[WARN] File {{ .Values.automationRepo }}/{{ .Values.statusFile }} : canUpdateDR=false; No sync will be pushed to the DR."
-                  exit 2
-              fi
       - name: CreateUpdateProjects
         type: utils/bashV2
         configuration:
