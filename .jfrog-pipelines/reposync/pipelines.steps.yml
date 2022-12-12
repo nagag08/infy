@@ -214,7 +214,7 @@ pipelines:
             # - echo "Ping status = ${step_Ping_statusName}"
             - saas_main=$(echo {{ .Values.jpdMain }})
             - url="int_${saas_main}_url"
-            - token="int_${saas_dr}_accessToken"
+            - token="int_${saas_main}_accessToken"
             - configure_jfrog_cli --artifactory-url "${!url}/artifactory" --access-token "${!token}" --server-name saas_dr
             - jf -v
             - jf c s
