@@ -1,9 +1,5 @@
-template: true   # required for local templates.
-valuesFilePath: ./values.yml
-
 resources:
-  - name: sync_cron
-    type: CronTrigger
+  - name:       main_site_update
+    type:       IncomingWebhook
     configuration:
-      interval: '0 */6 * * *'     # every 2 hours
-
+      webhookName:  main_site_update

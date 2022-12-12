@@ -17,7 +17,7 @@ pipelines:
         configuration:
           #affinityGroup: together
           inputResources:
-            - name: sync_cron
+            - name: main_site_update
           integrations:
           # {{- range .Values.jpdIntegrationName }}
           #   - name: "{{ . }}"
