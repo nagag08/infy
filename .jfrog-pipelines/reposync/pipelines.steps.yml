@@ -199,7 +199,7 @@ pipelines:
       - name: Update_status_yml
         type: Bash
         configuration:
-          affinityGroup: together
+          #affinityGroup: together
           inputSteps:
             - name: DeleteProjects
               status:
