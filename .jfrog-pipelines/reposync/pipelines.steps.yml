@@ -196,51 +196,51 @@ pipelines:
         execution:
           onExecute:
             - echo /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
-        - name: Update_status_yml
-          type: Bash
-          configuration:
-            affinityGroup: together
-            inputSteps:
-              - name: DeleteProjects
-                status:
-                  - failure
-                  - error
-                  - success
-            integrations:
-            {{- range .Values.jpdIntegrationName }}
-              - name: "{{ . }}"
-            {{- end }}
-          execution:
-            onStart:
-              # - echo "Ping status = ${step_Ping_statusName}"
-              - saas_main=$(echo {{ .Values.jpdMain }})
-              - url="int_${saas_main}_url"
-              - token="int_${saas_dr}_accessToken"
-              - configure_jfrog_cli --artifactory-url "${!url}/artifactory" --access-token "${!token}" --server-name saas_dr
-              - jf -v
-              - jf c s
-              - jf rt ping || true
-              - curl -L https://github.com/mikefarah/yq/releases/download/{{ .Values.yqVersion }}/yq_linux_amd64 -o yq && chmod +x yq && ./yq -V
-            onExecute:
-              - exists=$(jf rt dl {{ .Values.automationRepo }}/{{ .Values.statusFile }} . | jq -r ."totals"."success")
-              - epochNow=$(date +%s)
-              - canUpdateDR=false
-              - hb=""
-              - |
-                if [[ $exists -eq 1 ]]; then 
-                  echo "[INFO] {{ .Values.statusFile }} found"; 
-                else 
-                  echo "[INFO] {{ .Values.statusFile }} NOT found ... initializing it ...";
-                  touch {{ .Values.statusFile }}
-                  ./yq -e -i ".from=\"SAAS_DR\"" {{ .Values.statusFile }}
-                  ./yq -e -i ".to=\"SAAS_MAIN\"" {{ .Values.statusFile }}
-                fi
-              - |
-                if [[ ${step_Ping_statusName} == "success" ]]; then 
-                  ./yq -e -i ".lastHeartBeatFromMain=${epochNow}" {{ .Values.statusFile }} 
-                  canUpdateDR=true
-                  hb=";lastHeartBeatFromMain=${epochNow}"
-                fi 
-              - ./yq -e -i ".canUpdateDR=\"${canUpdateDR}\"" {{ .Values.statusFile }} 
-              - ./yq -e -i ".requestDateTime=${epochNow}" {{ .Values.statusFile }}
-              - jf rt u {{ .Values.statusFile }} {{ .Values.automationRepo }}/ --target-props "from={{ .Values.from }};to={{ .Values.to }};canUpdateDR=${canUpdateDR};requestDateTime=${epochNow}${hb}"
+      - name: Update_status_yml
+        type: Bash
+        configuration:
+          affinityGroup: together
+          inputSteps:
+            - name: DeleteProjects
+              status:
+                - failure
+                - error
+                - success
+          integrations:
+          {{- range .Values.jpdIntegrationName }}
+            - name: "{{ . }}"
+          {{- end }}
+        execution:
+          onStart:
+            # - echo "Ping status = ${step_Ping_statusName}"
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_dr}_accessToken"
+            - configure_jfrog_cli --artifactory-url "${!url}/artifactory" --access-token "${!token}" --server-name saas_dr
+            - jf -v
+            - jf c s
+            - jf rt ping || true
+            - curl -L https://github.com/mikefarah/yq/releases/download/{{ .Values.yqVersion }}/yq_linux_amd64 -o yq && chmod +x yq && ./yq -V
+          onExecute:
+            - exists=$(jf rt dl {{ .Values.automationRepo }}/{{ .Values.statusFile }} . | jq -r ."totals"."success")
+            - epochNow=$(date +%s)
+            - canUpdateDR=false
+            - hb=""
+            - |
+              if [[ $exists -eq 1 ]]; then 
+                echo "[INFO] {{ .Values.statusFile }} found"; 
+              else 
+                echo "[INFO] {{ .Values.statusFile }} NOT found ... initializing it ...";
+                touch {{ .Values.statusFile }}
+                ./yq -e -i ".from=\"SAAS_DR\"" {{ .Values.statusFile }}
+                ./yq -e -i ".to=\"SAAS_MAIN\"" {{ .Values.statusFile }}
+              fi
+            - |
+              if [[ ${step_Ping_statusName} == "success" ]]; then 
+                ./yq -e -i ".lastHeartBeatFromMain=${epochNow}" {{ .Values.statusFile }} 
+                canUpdateDR=true
+                hb=";lastHeartBeatFromMain=${epochNow}"
+              fi 
+            - ./yq -e -i ".canUpdateDR=\"${canUpdateDR}\"" {{ .Values.statusFile }} 
+            - ./yq -e -i ".requestDateTime=${epochNow}" {{ .Values.statusFile }}
+            - jf rt u {{ .Values.statusFile }} {{ .Values.automationRepo }}/ --target-props "from={{ .Values.from }};to={{ .Values.to }};canUpdateDR=${canUpdateDR};requestDateTime=${epochNow}${hb}"
