@@ -38,7 +38,7 @@ pipelines:
           cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
-            - /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+            - echo /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
       - name: createLocalRepositories
         type: utils/bashV2
         configuration:
@@ -52,8 +52,8 @@ pipelines:
         execution:
           onExecute:
             - jf c s
-            - jf {{ .Values.cliPlugin.name }} -v 
-            - jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+            - echo jf {{ .Values.cliPlugin.name }} -v 
+            - echo jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
       - name: createRemoteRepositories
         type: utils/bashV2
         configuration:
@@ -66,7 +66,7 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+            - echo jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
       - name: createVirtualRepositories
         type: utils/bashV2
         configuration:
@@ -80,7 +80,7 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false      
+            - echo jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false      
       - name: UpdateLocalRepositories
         type: utils/bashV2
         configuration:
@@ -95,7 +95,7 @@ pipelines:
           onExecute:
             - jf c s
             - jf {{ .Values.cliPlugin.name }} -v 
-            - jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+            - echo jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
       - name: updateRemoteRepositories
         type: utils/bashV2
         configuration:
@@ -108,7 +108,7 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+            - echo jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
       - name: updateVirtualRepositories
         type: utils/bashV2
         configuration:
@@ -122,7 +122,7 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+            - echo jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
       - name: deleteLocalRepositories
         type: utils/bashV2
         configuration:
@@ -135,8 +135,8 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} -v
-            - jf {{ .Values.cliPlugin.name }} delete local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+            - echo jf {{ .Values.cliPlugin.name }} -v
+            - echo jf {{ .Values.cliPlugin.name }} delete local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
           onSuccess:
             - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
@@ -154,8 +154,8 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} -v
-            - jf {{ .Values.cliPlugin.name }} delete remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+            - echo jf {{ .Values.cliPlugin.name }} -v
+            - echo jf {{ .Values.cliPlugin.name }} delete remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
           onSuccess:
             - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
@@ -174,8 +174,8 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} -v
-            - jf {{ .Values.cliPlugin.name }} delete virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+            - echo jf {{ .Values.cliPlugin.name }} -v
+            - echo jf {{ .Values.cliPlugin.name }} delete virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
           onSuccess:
             - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
@@ -195,4 +195,52 @@ pipelines:
           cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
-            - /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+            - echo /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+        - name: Update_status_yml
+          type: Bash
+          configuration:
+            affinityGroup: together
+            inputSteps:
+              - name: DeleteProjects
+                status:
+                  - failure
+                  - error
+                  - success
+            integrations:
+            {{- range .Values.jpdIntegrationName }}
+              - name: "{{ . }}"
+            {{- end }}
+          execution:
+            onStart:
+              # - echo "Ping status = ${step_Ping_statusName}"
+              - saas_main=$(echo {{ .Values.jpdMain }})
+              - url="int_${saas_main}_url"
+              - token="int_${saas_dr}_accessToken"
+              - configure_jfrog_cli --artifactory-url "${!url}/artifactory" --access-token "${!token}" --server-name saas_dr
+              - jf -v
+              - jf c s
+              - jf rt ping || true
+              - curl -L https://github.com/mikefarah/yq/releases/download/{{ .Values.yqVersion }}/yq_linux_amd64 -o yq && chmod +x yq && ./yq -V
+            onExecute:
+              - exists=$(jf rt dl {{ .Values.automationRepo }}/{{ .Values.statusFile }} . | jq -r ."totals"."success")
+              - epochNow=$(date +%s)
+              - canUpdateDR=false
+              - hb=""
+              - |
+                if [[ $exists -eq 1 ]]; then 
+                  echo "[INFO] {{ .Values.statusFile }} found"; 
+                else 
+                  echo "[INFO] {{ .Values.statusFile }} NOT found ... initializing it ...";
+                  touch {{ .Values.statusFile }}
+                  ./yq -e -i ".from=\"SAAS_DR\"" {{ .Values.statusFile }}
+                  ./yq -e -i ".to=\"SAAS_MAIN\"" {{ .Values.statusFile }}
+                fi
+              - |
+                if [[ ${step_Ping_statusName} == "success" ]]; then 
+                  ./yq -e -i ".lastHeartBeatFromMain=${epochNow}" {{ .Values.statusFile }} 
+                  canUpdateDR=true
+                  hb=";lastHeartBeatFromMain=${epochNow}"
+                fi 
+              - ./yq -e -i ".canUpdateDR=\"${canUpdateDR}\"" {{ .Values.statusFile }} 
+              - ./yq -e -i ".requestDateTime=${epochNow}" {{ .Values.statusFile }}
+              - jf rt u {{ .Values.statusFile }} {{ .Values.automationRepo }}/ --target-props "from={{ .Values.from }};to={{ .Values.to }};canUpdateDR=${canUpdateDR};requestDateTime=${epochNow}${hb}"
