@@ -39,169 +39,169 @@ pipelines:
         execution:
           onExecute:
             - echo /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
-#       - name: createLocalRepositories
-#         type: utils/bashV2
-#         configuration:
-#           #affinityGroup: together
-#           inputSteps:
-#             - name: CreateUpdateProjects
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
-#         execution:
-#           onExecute:
-#             - jf c s
-#             - echo jf {{ .Values.cliPlugin.name }} -v 
-#             - echo jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
-#       - name: createRemoteRepositories
-#         type: utils/bashV2
-#         configuration:
-#           #affinityGroup: together
-#           inputSteps:
-#             - name: CreateUpdateProjects
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
-#         execution:
-#           onExecute:
-#             - echo jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
-#       - name: createVirtualRepositories
-#         type: utils/bashV2
-#         configuration:
-#           # affinityGroup: CreateUpdateProjects
-#           inputSteps:
-#             - name: createLocalRepositories
-#             - name: createRemoteRepositories
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
-#         execution:
-#           onExecute:
-#             - echo jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false      
-#       - name: UpdateLocalRepositories
-#         type: utils/bashV2
-#         configuration:
-#           #affinityGroup: together
-#           inputSteps:
-#             - name: createVirtualRepositories
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
-#         execution:
-#           onExecute:
-#             - jf c s
-#             - jf {{ .Values.cliPlugin.name }} -v 
-#             - echo jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
-#       - name: updateRemoteRepositories
-#         type: utils/bashV2
-#         configuration:
-#           #affinityGroup: together
-#           inputSteps:
-#             - name: createVirtualRepositories
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
-#         execution:
-#           onExecute:
-#             - echo jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
-#       - name: updateVirtualRepositories
-#         type: utils/bashV2
-#         configuration:
-#           # affinityGroup: together
-#           inputSteps:
-#             - name: UpdateLocalRepositories
-#             - name: updateRemoteRepositories
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
-#         execution:
-#           onExecute:
-#             - echo jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
-#       - name: deleteLocalRepositories
-#         type: utils/bashV2
-#         configuration:
-#           #affinityGroup: together
-#           inputSteps:
-#             - name: updateVirtualRepositories
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
-#         execution:
-#           onExecute:
-#             - echo jf {{ .Values.cliPlugin.name }} -v
-#             - echo jf {{ .Values.cliPlugin.name }} delete local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
-#           onSuccess:
-#             - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
-#             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
-#             - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
-#             - rm -rf {{ .Values.jpdDr }}
-#       - name: deleteRemoteRepositories
-#         type: utils/bashV2
-#         configuration:
-#           #affinityGroup: together
-#           inputSteps:
-#             - name: updateVirtualRepositories
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
-#         execution:
-#           onExecute:
-#             - echo jf {{ .Values.cliPlugin.name }} -v
-#             - echo jf {{ .Values.cliPlugin.name }} delete remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
-#           onSuccess:
-#             - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
-#             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
-#             - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
-#             - rm -rf {{ .Values.jpdDr }}
-#       - name: deleteVirtualRepositories
-#         type: utils/bashV2
-#         configuration:
-#           #affinityGroup: together
-#           inputSteps:
-#             - name: deleteLocalRepositories
-#             - name: deleteRemoteRepositories
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
-#         execution:
-#           onExecute:
-#             - echo jf {{ .Values.cliPlugin.name }} -v
-#             - echo jf {{ .Values.cliPlugin.name }} delete virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
-#           onSuccess:
-#             - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
-#             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
-#             - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
-#             - rm -rf {{ .Values.jpdDr }}   
-#       - name: DeleteProjects
-#         type: utils/bashV2
-#         configuration:
-#           #affinityGroup: together
-#           inputSteps:
-#             - name: deleteLocalRepositories
-#             - name: deleteRemoteRepositories
-#             - name: deleteVirtualRepositories
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
-#         execution:
-#           onExecute:
-#             - echo /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+      - name: createLocalRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: CreateUpdateProjects
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf c s
+            - echo jf {{ .Values.cliPlugin.name }} -v 
+            - echo jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+      - name: createRemoteRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: CreateUpdateProjects
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - echo jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+      - name: createVirtualRepositories
+        type: utils/bashV2
+        configuration:
+          # affinityGroup: CreateUpdateProjects
+          inputSteps:
+            - name: createLocalRepositories
+            - name: createRemoteRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
+        execution:
+          onExecute:
+            - echo jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false      
+      - name: UpdateLocalRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: createVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf c s
+            - jf {{ .Values.cliPlugin.name }} -v 
+            - echo jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+      - name: updateRemoteRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: createVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - echo jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+      - name: updateVirtualRepositories
+        type: utils/bashV2
+        configuration:
+          # affinityGroup: together
+          inputSteps:
+            - name: UpdateLocalRepositories
+            - name: updateRemoteRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
+        execution:
+          onExecute:
+            - echo jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+      - name: deleteLocalRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: updateVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - echo jf {{ .Values.cliPlugin.name }} -v
+            - echo jf {{ .Values.cliPlugin.name }} delete local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+          onSuccess:
+            - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
+            - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
+            - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
+            - rm -rf {{ .Values.jpdDr }}
+      - name: deleteRemoteRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: updateVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - echo jf {{ .Values.cliPlugin.name }} -v
+            - echo jf {{ .Values.cliPlugin.name }} delete remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+          onSuccess:
+            - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
+            - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
+            - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
+            - rm -rf {{ .Values.jpdDr }}
+      - name: deleteVirtualRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: deleteLocalRepositories
+            - name: deleteRemoteRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - echo jf {{ .Values.cliPlugin.name }} -v
+            - echo jf {{ .Values.cliPlugin.name }} delete virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+          onSuccess:
+            - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
+            - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
+            - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
+            - rm -rf {{ .Values.jpdDr }}   
+      - name: DeleteProjects
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: deleteLocalRepositories
+            - name: deleteRemoteRepositories
+            - name: deleteVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+        execution:
+          onExecute:
+            - echo /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
       - name: Update_status_yml
         type: Bash
         configuration:
           #affinityGroup: together
           inputSteps:
-            - name: Ping
+            - name: DeleteProjects
               status:
                 - failure
                 - error
