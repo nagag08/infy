@@ -52,8 +52,8 @@ pipelines:
         execution:
           onExecute:
             - jf c s
-            - echo jf {{ .Values.cliPlugin.name }} -v 
-            - echo jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+            - jf {{ .Values.cliPlugin.name }} -v 
+            - jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
       - name: createRemoteRepositories
         type: utils/bashV2
         configuration:
@@ -66,7 +66,7 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - echo jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+            - jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
       - name: createVirtualRepositories
         type: utils/bashV2
         configuration:
@@ -80,7 +80,7 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
         execution:
           onExecute:
-            - echo jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false      
+            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false      
       - name: UpdateLocalRepositories
         type: utils/bashV2
         configuration:
@@ -95,7 +95,7 @@ pipelines:
           onExecute:
             - jf c s
             - jf {{ .Values.cliPlugin.name }} -v 
-            - echo jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+            - jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
       - name: updateRemoteRepositories
         type: utils/bashV2
         configuration:
@@ -108,7 +108,7 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - echo jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+            - jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
       - name: updateVirtualRepositories
         type: utils/bashV2
         configuration:
@@ -122,7 +122,7 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
         execution:
           onExecute:
-            - echo jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
       - name: deleteLocalRepositories
         type: utils/bashV2
         configuration:
@@ -135,8 +135,8 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - echo jf {{ .Values.cliPlugin.name }} -v
-            - echo jf {{ .Values.cliPlugin.name }} delete local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+            - jf {{ .Values.cliPlugin.name }} -v
+            - jf {{ .Values.cliPlugin.name }} delete local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
           onSuccess:
             - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
@@ -154,8 +154,8 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - echo jf {{ .Values.cliPlugin.name }} -v
-            - echo jf {{ .Values.cliPlugin.name }} delete remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+            - jf {{ .Values.cliPlugin.name }} -v
+            - jf {{ .Values.cliPlugin.name }} delete remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
           onSuccess:
             - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
@@ -174,8 +174,8 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - echo jf {{ .Values.cliPlugin.name }} -v
-            - echo jf {{ .Values.cliPlugin.name }} delete virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+            - jf {{ .Values.cliPlugin.name }} -v
+            - jf {{ .Values.cliPlugin.name }} delete virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
           onSuccess:
             - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
             - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
@@ -195,7 +195,7 @@ pipelines:
           cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
-            - echo /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+            - /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
       - name: Update_status_yml
         type: Bash
         configuration:
