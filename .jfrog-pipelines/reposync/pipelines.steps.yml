@@ -240,6 +240,7 @@ pipelines:
                 canUpdateDR=true
                 hb=";lastHeartBeatFromMain=${epochNow}"
               fi 
-            - ./yq -e -i ".canUpdateDR=\"${canUpdateDR}\"" {{ .Values.statusFile }} 
-            - ./yq -e -i ".requestDateTime=${epochNow}" {{ .Values.statusFile }}
+            - ./yq -e -i -v ".canUpdateDR=\"${canUpdateDR}\"" {{ .Values.statusFile }} 
+            - ./yq -e -i -v ".requestDateTime=${epochNow}" {{ .Values.statusFile }}
+            - cat {{ .Values.statusFile }}
             - jf rt u {{ .Values.statusFile }} {{ .Values.automationRepo }}/ --target-props "from={{ .Values.from }};to={{ .Values.to }};canUpdateDR=${canUpdateDR};requestDateTime=${epochNow}${hb}"
