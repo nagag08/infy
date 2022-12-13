@@ -26,19 +26,19 @@ pipelines:
             - name: {{ .Values.jpdDr }}
           iteration: 2
           sleepBetweenIteration: 5
-#       - name: CreateUpdateProjects
-#         type: utils/bashV2
-#         configuration:
-#           #affinityGroup: together
-#           inputSteps:
-#             - name: Ping
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#           cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
-#         execution:
-#           onExecute:
-#             - echo /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+      - name: CreateUpdateProjects
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: Ping
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+        execution:
+          onExecute:
+            - echo /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
 #       - name: createLocalRepositories
 #         type: utils/bashV2
 #         configuration:
