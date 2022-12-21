@@ -1,0 +1,5 @@
+resources:
+  - name:       main_site_update
+    type:       IncomingWebhook
+    configuration:
+      webhookName:  main_site_update

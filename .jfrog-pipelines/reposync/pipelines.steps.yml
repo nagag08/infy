@@ -1,0 +1,305 @@
+template: true   # required for local templates.
+valuesFilePath: ./values.yml
+
+pipelines:
+  - name: syncDR
+    configuration:
+      jfrogCliVersion: 2
+      affinityGroup: together
+      environmentVariables: 
+        readOnly:
+          JFROG_CLI_PLUGINS_SERVER: {{ .Values.jpdMain }}
+          JFROG_CLI_PLUGINS_REPO: jfrog-automation
+          JF_PLUGIN_REPOSYNC_INVENTORY_PATH: /tmp
+    steps:
+      - name: Ping
+        type: utils/ping
+        configuration:
+          #affinityGroup: together
+          inputResources:
+            - name: main_site_update
+          integrations:
+          # {{- range .Values.jpdIntegrationName }}
+          #   - name: "{{ . }}"
+          # {{- end }}
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          iteration: 2
+          sleepBetweenIteration: 5
+      - name: CreateUpdateProjects
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: Ping
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+        execution:
+          onExecute:
+            - /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+      - name: createLocalRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: CreateUpdateProjects
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf c s
+            - jf {{ .Values.cliPlugin.name }} -v 
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false --inventory=false
+              }
+            - jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }}  --dry-run=false --inventory=false
+      - name: createRemoteRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: CreateUpdateProjects
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false --inventory=false
+              }
+            - jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }}  --dry-run=false --inventory=false
+      - name: createVirtualRepositories
+        type: utils/bashV2
+        configuration:
+          # affinityGroup: CreateUpdateProjects
+          inputSteps:
+            - name: createLocalRepositories
+            - name: createRemoteRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
+        execution:
+          onExecute:
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false --inventory=false
+              }          
+            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }}  --dry-run=false --inventory=false     
+      - name: UpdateLocalRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: createVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf c s
+            - jf {{ .Values.cliPlugin.name }} -v 
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false 
+              }
+      - name: updateRemoteRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: createVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false 
+              } 
+      - name: updateVirtualRepositories
+        type: utils/bashV2
+        configuration:
+          # affinityGroup: together
+          inputSteps:
+            - name: UpdateLocalRepositories
+            - name: updateRemoteRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
+        execution:
+          onExecute:
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} update virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false 
+              }
+      - name: deleteLocalRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: updateVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf {{ .Values.cliPlugin.name }} -v
+            - jf {{ .Values.cliPlugin.name }} delete local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+          onSuccess:
+            - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
+            - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
+            - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
+            - rm -rf {{ .Values.jpdDr }}
+      - name: deleteRemoteRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: updateVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf {{ .Values.cliPlugin.name }} -v
+            - jf {{ .Values.cliPlugin.name }} delete remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+          onSuccess:
+            - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
+            - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
+            - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
+            - rm -rf {{ .Values.jpdDr }}
+      - name: deleteVirtualRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: deleteLocalRepositories
+            - name: deleteRemoteRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf {{ .Values.cliPlugin.name }} -v
+            - jf {{ .Values.cliPlugin.name }} delete virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=true
+          onSuccess:
+            - cd $JF_PLUGIN_REPOSYNC_INVENTORY_PATH && ls -l       
+            - mkdir {{ .Values.jpdDr }} && mv inventory*.yaml {{ .Values.jpdDr }}/
+            - jf rt u {{ .Values.jpdDr }}/* $JFROG_CLI_PLUGINS_REPO/
+            - rm -rf {{ .Values.jpdDr }}   
+      - name: DeleteProjects
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: deleteLocalRepositories
+            - name: deleteRemoteRepositories
+            - name: deleteVirtualRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+        execution:
+          onExecute:
+            - /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff delete {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+      - name: Update_status_yml
+        type: Bash
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: DeleteProjects
+            - name: Ping
+              status:
+                - failure
+                - error
+                - success
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+        execution:
+          onStart:
+            # - echo "Ping status = ${step_Ping_statusName}"
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - configure_jfrog_cli --artifactory-url "${!url}/artifactory" --access-token "${!token}" --server-name saas_dr
+            - jf -v
+            - jf c s
+            - jf rt ping || true
+            - curl -L https://github.com/mikefarah/yq/releases/download/{{ .Values.yqVersion }}/yq_linux_amd64 -o yq && chmod +x yq && ./yq -V
+          onExecute:
+            - exists=$(jf rt dl {{ .Values.automationRepo }}/{{ .Values.statusFile }} . | jq -r ."totals"."success")
+            - epochNow=$(date +%s)
+            - canUpdateDR=false
+            - hb=""
+            - echo ${step_Ping_statusName}
+            - |
+              if [[ $exists -eq 1 ]]; then 
+                echo "[INFO] {{ .Values.statusFile }} found"; 
+              else 
+                echo "[INFO] {{ .Values.statusFile }} NOT found ... initializing it ...";
+                touch {{ .Values.statusFile }}
+                ./yq -e -i ".from=\"SAAS_DR\"" {{ .Values.statusFile }}
+                ./yq -e -i ".to=\"SAAS_MAIN\"" {{ .Values.statusFile }}
+              fi
+            - |
+              if [[ ${step_Ping_statusName} == "success" ]]; then 
+                ./yq -e -i ".lastHeartBeatFromMain=${epochNow}" {{ .Values.statusFile }} 
+                canUpdateDR=true
+                hb=";lastHeartBeatFromMain=${epochNow}"
+              fi 
+            - ./yq -e -i -v ".canUpdateDR=\"${canUpdateDR}\"" {{ .Values.statusFile }} 
+            - ./yq -e -i -v ".requestDateTime=${epochNow}" {{ .Values.statusFile }}
+            - cat {{ .Values.statusFile }}
+            - jf rt u {{ .Values.statusFile }} {{ .Values.automationRepo }}/ --target-props "from={{ .Values.from }};to={{ .Values.to }};canUpdateDR=${canUpdateDR};requestDateTime=${epochNow}${hb}"
