@@ -35,7 +35,7 @@ pipelines:
           execution:
             onStart:
               # - echo "Ping status = ${step_Ping_statusName}"
-              - saas_main=$(echo {{ .Values.jpdIntegrationName }} | cut -d" " -f2 | tr -d ])
+              - saas_main=$(echo {{ .Values.jpdIntegrationName }} | cut -d" " -f1 | tr -d ])
               - url="int_${saas_main}_url"
               - token="int_${saas_main}_accessToken"
               - configure_jfrog_cli --artifactory-url "${!url}/artifactory" --access-token "${!token}" --server-name saas_main
