@@ -38,7 +38,7 @@ pipelines:
           cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
         execution:
           onExecute:
-            - echo /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+            - /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
       - name: createLocalRepositories
         type: utils/bashV2
         configuration:
@@ -53,7 +53,17 @@ pipelines:
           onExecute:
             - jf c s
             - jf {{ .Values.cliPlugin.name }} -v 
-            - jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false --inventory=false
+              }
+            - jf {{ .Values.cliPlugin.name }} create local {{ .Values.jpdMain }} {{ .Values.jpdDr }}  --dry-run=false --inventory=false
       - name: createRemoteRepositories
         type: utils/bashV2
         configuration:
@@ -66,7 +76,17 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false --inventory=false
+              }
+            - jf {{ .Values.cliPlugin.name }} create remote {{ .Values.jpdMain }} {{ .Values.jpdDr }}  --dry-run=false --inventory=false
       - name: createVirtualRepositories
         type: utils/bashV2
         configuration:
@@ -80,7 +100,17 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false --inventory=false      
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false --inventory=false
+              }          
+            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }}  --dry-run=false --inventory=false     
       - name: UpdateLocalRepositories
         type: utils/bashV2
         configuration:
@@ -95,7 +125,16 @@ pipelines:
           onExecute:
             - jf c s
             - jf {{ .Values.cliPlugin.name }} -v 
-            - jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false 
+              }
       - name: updateRemoteRepositories
         type: utils/bashV2
         configuration:
@@ -108,7 +147,16 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false 
+              } 
       - name: updateVirtualRepositories
         type: utils/bashV2
         configuration:
@@ -122,7 +170,16 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
         execution:
           onExecute:
-            - jf {{ .Values.cliPlugin.name }} create virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --dry-run=false 
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              for projName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/access/api/v1/projects" -s | jq -r '.[].project_key') 
+              {
+                 jf {{ .Values.cliPlugin.name }} update virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --project-key=$projName --dry-run=false 
+              }
       - name: deleteLocalRepositories
         type: utils/bashV2
         configuration:
