@@ -1,0 +1,155 @@
+template: true   # required for local templates.
+valuesFilePath: ./values.yml
+
+pipelines:
+  - name: syncDRUpdateRepoNoProject
+    configuration:
+      jfrogCliVersion: 2
+      affinityGroup: together
+      environmentVariables: 
+        readOnly:
+          JFROG_CLI_PLUGINS_SERVER: {{ .Values.jpdMain }}
+          JFROG_CLI_PLUGINS_REPO: jfrog-automation
+          JF_PLUGIN_REPOSYNC_INVENTORY_PATH: /tmp
+    steps:
+      - name: Ping
+        type: utils/ping
+        configuration:
+          #affinityGroup: together
+          inputResources:
+            - name: syncupdate_cron
+          integrations:
+          # {{- range .Values.jpdIntegrationName }}
+          #   - name: "{{ . }}"
+          # {{- end }}
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          iteration: 2
+          sleepBetweenIteration: 5
+      - name: checkOutages
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: Ping
+          integrations:
+            - name: {{ .Values.jpdDr }}
+        execution:
+          onExecute:
+            - requestDateTime=$(jf rt s {{ .Values.automationRepo }}/{{ .Values.statusFile }} | jq -r ".[].props.requestDateTime[]")
+            - |
+              if [[ $requestDateTime -eq "" ]]; then 
+                echo "[WARN] {{ .Values.statusFile }} NOT found or "requestDateTime" properties could NOT be found . Check if the Health Check pipeline has run on the DR side"
+                exit 1              
+              fi
+            - canUpdateDR=$(jf rt s {{ .Values.automationRepo }}/{{ .Values.statusFile }} | jq -r ".[].props.canUpdateDR[]")
+            - |
+              if [[ $? -eq "" ]]; then 
+                echo "[WARN] "canUpdateDR" properties could NOT be found . Check if the Health Check pipeline has run on the DR side"
+                exit 1              
+              fi            
+            - epochNow=$(date +%s)
+            - echo $canUpdateDR
+            - interval=$(expr $epochNow - $requestDateTime)
+            - echo $epochNow
+            - echo $requestDateTime
+            - echo $interval
+            - |
+              if [[ $interval -gt {{ .Values.HealthCheckIntervalInSec }} ]] ; then 
+                  echo "[ERROR] the last update on the  {{ .Values.automationRepo }}/{{ .Values.statusFile }} was more than {{ .Values.HealthCheckIntervalInSec }} seconds."
+                  exit 1
+              fi 
+            - |
+              if [[ $canUpdateDR == "false" ]] ; then
+                  echo "[WARN] File {{ .Values.automationRepo }}/{{ .Values.statusFile }} : canUpdateDR=false; No sync will be pushed to the DR."
+                  curl -XPOST -H "authorization: jfrogPassword_011" https://psemea-pipelines-api.jfrog.io/v1/projectIntegrations/29/hook
+                  exit 2
+              fi
+      - name: CreateUpdateProjects
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: checkOutages
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"     
+        execution:
+          onExecute:
+            - /root/.jfrog/plugins/proj-sync/bin/{{ .Values.projectPlugin.name }} diff create {{ .Values.jpdMain }} {{ .Values.jpdDr }}
+      - name: UpdateLocalRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: CreateUpdateProjects
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf c s
+            - jf {{ .Values.cliPlugin.name }} -v 
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              echo "localRepositories:" > localrepos.yml
+              for repoName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/artifactory/api/repositories?type=local" -s | jq -r '.[].key')
+              {
+                  curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/artifactory/api/repositories/$repoName" -s|jq -r '.| select(.projectKey|not)|("- "+.key)' >> localrepos.yml
+              }
+              jf {{ .Values.cliPlugin.name }} update local {{ .Values.jpdMain }} {{ .Values.jpdDr }} --repo-file=localrepos.yml --dry-run=false 
+      - name: updateRemoteRepositories
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: CreateUpdateProjects
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              echo "remoteRepositories:" > remoterepos.yml
+              for repoName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/artifactory/api/repositories?type=remote" -s | jq -r '.[].key')
+              {
+                  curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/artifactory/api/repositories/$repoName" -s|jq -r '.| select(.projectKey|not)|("- "+.key)' >> remoterepos.yml
+              }
+              jf {{ .Values.cliPlugin.name }} update remote {{ .Values.jpdMain }} {{ .Values.jpdDr }} --repo-file=remoterepos.yml --dry-run=false
+      - name: updateVirtualRepositories
+        type: utils/bashV2
+        configuration:
+          # affinityGroup: together
+          inputSteps:
+            - name: UpdateLocalRepositories
+            - name: updateRemoteRepositories
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"     
+        execution:
+          onExecute:
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              echo "virtualRepositories:" > virtualrepos.yml
+              for repoName in $(curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/artifactory/api/repositories?type=virtual" -s | jq -r '.[].key')
+              {
+                  curl -XGET -H "Authorization: Bearer ${!token}" "${!url}/artifactory/api/repositories/$repoName" -s|jq -r '.| select(.projectKey|not)|("- "+.key)' >> virtualrepos.yml
+              }
+              jf {{ .Values.cliPlugin.name }} update virtual {{ .Values.jpdMain }} {{ .Values.jpdDr }} --repo-file=virtualrepos.yml --dry-run=false
