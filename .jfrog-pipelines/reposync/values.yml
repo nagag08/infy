@@ -9,7 +9,7 @@ jpdDr: dr_site
 
 # automation config
 # Health check is running every 15 min (900 seconds)
-HealthCheckIntervalInSec: 4900
+HealthCheckIntervalInSec: 900
 automationRepo: jfrog-automation
 statusFile: status.yml
 cliPlugin:
