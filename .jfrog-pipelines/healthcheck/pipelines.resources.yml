@@ -16,4 +16,4 @@ resources:
   - name: hc_crontab
     type: CronTrigger
     configuration:
-      interval: '0/15 * * * *'     # every 15 min
+      interval: '0/20 * * * *'     # every 20 min
