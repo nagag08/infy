@@ -258,6 +258,7 @@ pipelines:
         configuration:
           #affinityGroup: together
           inputSteps:
+            - name: DeleteProjects
             - name: Ping
               status:
                 - failure
