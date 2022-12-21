@@ -3,7 +3,7 @@ myRepo:
   path: cyan21/test-pipelines
 jpdIntegrationName:
   - main_site 
-  - dr_site_test
+  - dr_site
 
 # automation config
 yqVersion: v4.27.5
