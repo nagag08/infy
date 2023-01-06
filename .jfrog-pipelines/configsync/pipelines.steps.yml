@@ -1,0 +1,47 @@
+template: true   # required for local templates.
+valuesFilePath: ./values.yml
+
+pipelines:
+  - name: configSync
+    configuration:
+      jfrogCliVersion: 2
+      affinityGroup: together
+      environmentVariables: 
+        readOnly:
+          JFROG_CLI_PLUGINS_SERVER: {{ .Values.jpdMain }}
+          JFROG_CLI_PLUGINS_REPO: jfrog-automation
+          JF_PLUGIN_REPOSYNC_INVENTORY_PATH: /tmp
+    steps:
+      - name: Ping
+        type: utils/ping
+        configuration:
+          #affinityGroup: together
+          integrations:
+          # {{- range .Values.jpdIntegrationName }}
+          #   - name: "{{ . }}"
+          # {{- end }}
+            - name: {{ .Values.jpdMain }}
+          iteration: 2
+          sleepBetweenIteration: 5
+      - name: configSyncUpdate
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: ping
+          integrations:
+            - name: {{ .Values.jpdMain }}
+          cliPlugin: "{{ .Values.configPlugin.name }}@{{ .Values.configPlugin.version }}"
+        execution:
+          onExecute:
+            - jf c s
+            - jf {{ .Values.cliPlugin.name }} -v 
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - |
+              jf rt dl {{ .Values.automationRepo }}/config-sync/yaml-input/input.yaml .
+              cat input.yaml
+            - echo jf {{ .Values.configPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="input.yaml"  --dry-run=false
