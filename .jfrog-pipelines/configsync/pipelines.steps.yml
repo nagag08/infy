@@ -45,4 +45,4 @@ pipelines:
               jf rt dl {{ .Values.automationRepo }}/config-sync/yaml-input/input.yaml input.yaml
               ls
               cat config-sync/yaml-input/input.yaml
-            - jf {{ .Values.configPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
+            - echo jf {{ .Values.configPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
