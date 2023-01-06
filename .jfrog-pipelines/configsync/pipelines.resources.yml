@@ -13,7 +13,7 @@ resources:
   #       # Specifies which branches will trigger dependent steps
   #       include: master
 
-  - name: hc_crontab
+  - name: hc_crontab1
     type: CronTrigger
     configuration:
-      interval: '0/15 * * * *'     # every 15 min
+      interval: '*/15 * * * *'     # every 15 min
