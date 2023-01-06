@@ -28,7 +28,7 @@ pipelines:
         configuration:
           #affinityGroup: together
           inputSteps:
-            - name: ping
+            - name: Ping
           integrations:
             - name: {{ .Values.jpdMain }}
           cliPlugin: "{{ .Values.configPlugin.name }}@{{ .Values.configPlugin.version }}"
