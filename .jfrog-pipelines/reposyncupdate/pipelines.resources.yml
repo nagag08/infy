@@ -1,9 +1,0 @@
-template: true   # required for local templates.
-valuesFilePath: ./values.yml
-
-resources:
-  - name: syncupdate_cron
-    type: CronTrigger
-    configuration:
-      interval: '59 */2 * * *'     # every 2 hours and 59th min as the syncrepo will need to run
-
