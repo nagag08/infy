@@ -35,7 +35,7 @@ pipelines:
         execution:
           onExecute:
             - jf c s
-            - jf {{ .Values.cliPlugin.name }} -v 
+            - jf {{ .Values.configPlugin.name }} -v 
             - saas_main=$(echo {{ .Values.jpdMain }})
             - url="int_${saas_main}_url"
             - token="int_${saas_main}_accessToken"
