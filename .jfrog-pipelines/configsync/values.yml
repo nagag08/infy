@@ -4,17 +4,13 @@ myRepo:
 # jpdIntegrationName:
 #   - yannsbx_platform_access
 #   - yann_platform_token
+
+# to update DR, change below to dr_site
 jpdMain: main_site 
 
 # automation config
 # Health check is running every 15 min (900 seconds)
 automationRepo: jfrog-automation
-cliPlugin:
-  name: repo-sync
-  version: 0.1.0
-projectPlugin:
-  name: proj-sync
-  version: 0.1.0
 configPlugin:
   name: config-sync
   version: 0.1.0
