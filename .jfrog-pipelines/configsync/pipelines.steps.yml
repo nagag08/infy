@@ -42,6 +42,7 @@ pipelines:
             - echo $url
             - echo $token
             - |
-              jf rt dl {{ .Values.automationRepo }}/config-sync/yaml-input/input.yaml .
+              jf rt dl {{ .Values.automationRepo }}/config-sync/yaml-input/input.yaml input.yaml
+              ls
               cat input.yaml
             - echo jf {{ .Values.configPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="input.yaml"  --dry-run=false
