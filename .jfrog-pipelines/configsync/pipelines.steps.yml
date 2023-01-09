@@ -8,8 +8,8 @@ pipelines:
       affinityGroup: together
       environmentVariables: 
         readOnly:
-          JFROG_CLI_PLUGINS_SERVER: {{ .Values.jpdMain }}
-          JFROG_CLI_PLUGINS_REPO: jfrog-automation
+#           JFROG_CLI_PLUGINS_SERVER: {{ .Values.jpdMain }}
+#           JFROG_CLI_PLUGINS_REPO: jfrog-automation
           JF_PLUGIN_REPOSYNC_INVENTORY_PATH: /tmp
     steps:
       - name: Ping
@@ -46,7 +46,7 @@ pipelines:
               ls
               cat config-sync/yaml-input/input.yaml
             - echo jf {{ .Values.configPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
-            - jf {{ .Values.projectPlugin.name }} -v
+            - jf {{ .Values.configPlugin.name }} -v
       - name: projectSyncUpdate
         type: utils/bashV2
         configuration:
