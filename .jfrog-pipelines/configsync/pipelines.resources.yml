@@ -3,7 +3,7 @@ valuesFilePath: ./values.yml
 
 resources:
 
-  - name: configSyncResouce
+  - name: pipelinetest1
     type: PropertyBag
     configuration:
       commitSha: 1
