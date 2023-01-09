@@ -60,38 +60,38 @@ pipelines:
               cat config-sync/yaml-input/input.yaml
             - echo jf {{ .Values.configPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
             - jf {{ .Values.configPlugin.name }} -v
-#       - name: projectSyncUpdate
-#         type: Bash
-#         configuration:
-#           #affinityGroup: together
-# #           inputSteps:
-# #             - name: Ping
-#           integrations:
-#             - name: {{ .Values.jpdMain }}
-#             - name: {{ .Values.jpdDr }}
-#         execution:
-#           onExecute:
-#             - saas_main=$(echo {{ .Values.jpdMain }})
-#             - main_url="int_${saas_main}_url"
-#             - main_token="int_${saas_main}_accessToken"
-#             - saas_dr=$(echo {{ .Values.jpdDr }})
-#             - dr_url="int_${saas_dr}_url"
-#             - dr_token="int_${saas_dr}_accessToken"
-#             - |
-#               configure_jfrog_cli --artifactory-url "${!main_url}/artifactory" --access-token "${!main_token}" --server-name "${!saas_main}"
-#               configure_jfrog_cli --artifactory-url "${!dr_url}/artifactory" --access-token "${!dr_token}" --server-name "${!saas_dr}"
-#               jf c s
-#               jf rt ping --server-name "${!saas_main}"
-#               jf rt ping --server-name "${!saas_dr}"
-#               export JFROG_CLI_LOG_LEVEL=DEBUG
-#               echo "$JFROG_CLI_LOG_LEVEL - $JFROG_CLI_PLUGINS_SERVER - $JFROG_CLI_PLUGINS_REPO"
-#               jf plugin install {{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}
-#               if [[ $? -eq 1 ]]; then
-#                 echo "[ERROR] Could not install or find the $cli_plugin CLI plugin."
-#                  exit 1
-#               fi 
-#             - echo jf {{ .Values.projectPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
-#             - jf {{ .Values.projectPlugin.name }} -v
+      - name: projectSyncUpdate
+        type: Bash
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: Ping
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
+        execution:
+          onExecute:
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - main_url="int_${saas_main}_url"
+            - main_token="int_${saas_main}_accessToken"
+            - saas_dr=$(echo {{ .Values.jpdDr }})
+            - dr_url="int_${saas_dr}_url"
+            - dr_token="int_${saas_dr}_accessToken"
+            - |
+              configure_jfrog_cli --artifactory-url "${!main_url}/artifactory" --access-token "${!main_token}" --server-name "${!saas_main}"
+              configure_jfrog_cli --artifactory-url "${!dr_url}/artifactory" --access-token "${!dr_token}" --server-name "${!saas_dr}"
+              jf c s
+              jf rt ping --server-name "${!saas_main}"
+              jf rt ping --server-name "${!saas_dr}"
+              export JFROG_CLI_LOG_LEVEL=DEBUG
+              echo "$JFROG_CLI_LOG_LEVEL - $JFROG_CLI_PLUGINS_SERVER - $JFROG_CLI_PLUGINS_REPO"
+              jf plugin install {{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}
+              if [[ $? -eq 1 ]]; then
+                echo "[ERROR] Could not install or find the $cli_plugin CLI plugin."
+                 exit 1
+              fi 
+            - echo jf {{ .Values.projectPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
+            - jf {{ .Values.projectPlugin.name }} -v
 #       - name: repoSyncUpdate
 #         type: Bash
 #         configuration:
