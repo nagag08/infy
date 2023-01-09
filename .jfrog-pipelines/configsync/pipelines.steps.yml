@@ -2,7 +2,7 @@ template: true   # required for local templates.
 valuesFilePath: ./values.yml
 
 pipelines:
-  - name: configSync
+  - name: Pipelinetest
     configuration:
       jfrogCliVersion: 2
       affinityGroup: together
