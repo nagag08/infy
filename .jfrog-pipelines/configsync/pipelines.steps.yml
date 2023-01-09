@@ -24,7 +24,7 @@ pipelines:
           iteration: 2
           sleepBetweenIteration: 5
       - name: configSyncUpdate
-        type: utils/bashV2
+        type: bash
         configuration:
           #affinityGroup: together
           inputSteps:
@@ -34,13 +34,19 @@ pipelines:
           cliPlugin: "{{ .Values.configPlugin.name }}@{{ .Values.configPlugin.version }}"
         execution:
           onExecute:
-            - jf c s
-            - jf {{ .Values.configPlugin.name }} -v 
             - saas_main=$(echo {{ .Values.jpdMain }})
-            - url="int_${saas_main}_url"
-            - token="int_${saas_main}_accessToken"
-            - echo $url
-            - echo $token
+            - main_url="int_${saas_main}_url"
+            - main_token="int_${saas_main}_accessToken"
+            - saas_dr=$(echo {{ .Values.jpdDr }})
+            - dr_url="int_${saas_dr}_url"
+            - dr_token="int_${saas_dr}_accessToken"
+            - |
+              configure_jfrog_cli --artifactory-url "${!main_url}/artifactory" --access-token "${!main_token}" --server-name "${!saas_main}"
+              configure_jfrog_cli --artifactory-url "${!dr_url}/artifactory" --access-token "${!dr_token}" --server-name "${!saas_dr}"
+              jf c s
+              jf rt ping --server-name "${!saas_main}"
+              jf rt ping --server-name "${!saas_dr}"
+            - jf {{ .Values.configPlugin.name }} -v 
             - |
               jf rt dl {{ .Values.automationRepo }}/config-sync/yaml-input/input.yaml input.yaml
               ls
@@ -48,7 +54,7 @@ pipelines:
             - echo jf {{ .Values.configPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
             - jf {{ .Values.configPlugin.name }} -v
       - name: projectSyncUpdate
-        type: utils/bashV2
+        type: bash
         configuration:
           #affinityGroup: together
           inputSteps:
@@ -58,13 +64,18 @@ pipelines:
           cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"
         execution:
           onExecute:
-            - jf c s
-            - jf {{ .Values.projectPlugin.name }} -v 
             - saas_main=$(echo {{ .Values.jpdMain }})
-            - url="int_${saas_main}_url"
-            - token="int_${saas_main}_accessToken"
-            - echo $url
-            - echo $token
+            - main_url="int_${saas_main}_url"
+            - main_token="int_${saas_main}_accessToken"
+            - saas_dr=$(echo {{ .Values.jpdDr }})
+            - dr_url="int_${saas_dr}_url"
+            - dr_token="int_${saas_dr}_accessToken"
+            - |
+              configure_jfrog_cli --artifactory-url "${!main_url}/artifactory" --access-token "${!main_token}" --server-name "${!saas_main}"
+              configure_jfrog_cli --artifactory-url "${!dr_url}/artifactory" --access-token "${!dr_token}" --server-name "${!saas_dr}"
+              jf c s
+              jf rt ping --server-name "${!saas_main}"
+              jf rt ping --server-name "${!saas_dr}"
             - echo jf {{ .Values.projectPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
             - jf {{ .Values.projectPlugin.name }} -v
       - name: repoSyncUpdate
@@ -78,13 +89,18 @@ pipelines:
           cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
-            - jf c s
-            - jf {{ .Values.cliPlugin.name }} -v 
             - saas_main=$(echo {{ .Values.jpdMain }})
-            - url="int_${saas_main}_url"
-            - token="int_${saas_main}_accessToken"
-            - echo $url
-            - echo $token
+            - main_url="int_${saas_main}_url"
+            - main_token="int_${saas_main}_accessToken"
+            - saas_dr=$(echo {{ .Values.jpdDr }})
+            - dr_url="int_${saas_dr}_url"
+            - dr_token="int_${saas_dr}_accessToken"
+            - |
+              configure_jfrog_cli --artifactory-url "${!main_url}/artifactory" --access-token "${!main_token}" --server-name "${!saas_main}"
+              configure_jfrog_cli --artifactory-url "${!dr_url}/artifactory" --access-token "${!dr_token}" --server-name "${!saas_dr}"
+              jf c s
+              jf rt ping --server-name "${!saas_main}"
+              jf rt ping --server-name "${!saas_dr}"
             - echo jf {{ .Values.cliPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
             - jf {{ .Values.cliPlugin.name }} -v
           
