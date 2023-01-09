@@ -24,7 +24,7 @@ pipelines:
           iteration: 2
           sleepBetweenIteration: 5
       - name: configSyncUpdate
-        type: bash
+        type: Bash
         configuration:
           #affinityGroup: together
           inputSteps:
@@ -61,7 +61,7 @@ pipelines:
             - echo jf {{ .Values.configPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
             - jf {{ .Values.configPlugin.name }} -v
       - name: projectSyncUpdate
-        type: bash
+        type: Bash
         configuration:
           #affinityGroup: together
           inputSteps:
@@ -93,7 +93,7 @@ pipelines:
             - echo jf {{ .Values.projectPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
             - jf {{ .Values.projectPlugin.name }} -v
       - name: repoSyncUpdate
-        type: bash
+        type: Bash
         configuration:
           #affinityGroup: together
           inputSteps:
