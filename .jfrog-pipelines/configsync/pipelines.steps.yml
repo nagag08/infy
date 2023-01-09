@@ -8,8 +8,8 @@ pipelines:
       affinityGroup: together
       environmentVariables: 
         readOnly:
-#           JFROG_CLI_PLUGINS_SERVER: {{ .Values.jpdMain }}
-#           JFROG_CLI_PLUGINS_REPO: jfrog-automation
+          JFROG_CLI_PLUGINS_SERVER: {{ .Values.jpdMain }}
+          JFROG_CLI_PLUGINS_REPO: jfrog-automation
           JF_PLUGIN_REPOSYNC_INVENTORY_PATH: /tmp
     steps:
       - name: Ping
