@@ -29,9 +29,6 @@ pipelines:
           #affinityGroup: together
           inputSteps:
             - name: Ping
-          integrations:
-            - name: {{ .Values.jpdMain }}
-          cliPlugin: "{{ .Values.configPlugin.name }}@{{ .Values.configPlugin.version }}"
         execution:
           onExecute:
             - saas_main=$(echo {{ .Values.jpdMain }})
@@ -48,7 +45,7 @@ pipelines:
               jf rt ping --server-name "${!saas_dr}"
               export JFROG_CLI_LOG_LEVEL=DEBUG
               echo "$JFROG_CLI_LOG_LEVEL - $JFROG_CLI_PLUGINS_SERVER - $JFROG_CLI_PLUGINS_REPO"
-              jf plugin install $cli_plugin
+              jf plugin install {{ .Values.configPlugin.name }}@{{ .Values.configPlugin.version }}
               if [[ $? -eq 1 ]]; then
                 echo "[ERROR] Could not install or find the $cli_plugin CLI plugin."
                  exit 1
@@ -66,9 +63,6 @@ pipelines:
           #affinityGroup: together
           inputSteps:
             - name: Ping
-          integrations:
-            - name: {{ .Values.jpdMain }}
-          cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"
         execution:
           onExecute:
             - saas_main=$(echo {{ .Values.jpdMain }})
@@ -85,7 +79,7 @@ pipelines:
               jf rt ping --server-name "${!saas_dr}"
               export JFROG_CLI_LOG_LEVEL=DEBUG
               echo "$JFROG_CLI_LOG_LEVEL - $JFROG_CLI_PLUGINS_SERVER - $JFROG_CLI_PLUGINS_REPO"
-              jf plugin install $cli_plugin
+              jf plugin install {{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}
               if [[ $? -eq 1 ]]; then
                 echo "[ERROR] Could not install or find the $cli_plugin CLI plugin."
                  exit 1
@@ -98,9 +92,6 @@ pipelines:
           #affinityGroup: together
           inputSteps:
             - name: Ping
-          integrations:
-            - name: {{ .Values.jpdMain }}
-          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
         execution:
           onExecute:
             - saas_main=$(echo {{ .Values.jpdMain }})
@@ -117,7 +108,7 @@ pipelines:
               jf rt ping --server-name "${!saas_dr}"
               export JFROG_CLI_LOG_LEVEL=DEBUG
               echo "$JFROG_CLI_LOG_LEVEL - $JFROG_CLI_PLUGINS_SERVER - $JFROG_CLI_PLUGINS_REPO"
-              jf plugin install $cli_plugin
+              jf plugin install {{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}
               if [[ $? -eq 1 ]]; then
                 echo "[ERROR] Could not install or find the $cli_plugin CLI plugin."
                  exit 1
