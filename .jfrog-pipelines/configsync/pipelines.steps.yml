@@ -93,7 +93,7 @@ pipelines:
             - echo jf {{ .Values.projectPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
             - jf {{ .Values.projectPlugin.name }} -v
       - name: repoSyncUpdate
-        type: bashV2
+        type: bash
         configuration:
           #affinityGroup: together
           inputSteps:
