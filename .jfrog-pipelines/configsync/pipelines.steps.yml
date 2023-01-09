@@ -29,6 +29,9 @@ pipelines:
           #affinityGroup: together
           inputSteps:
             - name: Ping
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
         execution:
           onExecute:
             - saas_main=$(echo {{ .Values.jpdMain }})
@@ -63,6 +66,9 @@ pipelines:
           #affinityGroup: together
           inputSteps:
             - name: Ping
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
         execution:
           onExecute:
             - saas_main=$(echo {{ .Values.jpdMain }})
@@ -92,6 +98,9 @@ pipelines:
           #affinityGroup: together
           inputSteps:
             - name: Ping
+          integrations:
+            - name: {{ .Values.jpdMain }}
+            - name: {{ .Values.jpdDr }}
         execution:
           onExecute:
             - saas_main=$(echo {{ .Values.jpdMain }})
