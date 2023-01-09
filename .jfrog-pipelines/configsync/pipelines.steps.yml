@@ -12,23 +12,23 @@ pipelines:
           JFROG_CLI_PLUGINS_REPO: jfrog-automation
           JF_PLUGIN_REPOSYNC_INVENTORY_PATH: /tmp
     steps:
-#       - name: Ping
-#         type: utils/ping
-#         configuration:
-#           #affinityGroup: together
-#           integrations:
-#           # {{- range .Values.jpdIntegrationName }}
-#           #   - name: "{{ . }}"
-#           # {{- end }}
-#             - name: {{ .Values.jpdMain }}
-#           iteration: 2
-#           sleepBetweenIteration: 5
+      - name: Ping
+        type: utils/ping
+        configuration:
+          #affinityGroup: together
+          integrations:
+          # {{- range .Values.jpdIntegrationName }}
+          #   - name: "{{ . }}"
+          # {{- end }}
+            - name: {{ .Values.jpdMain }}
+          iteration: 2
+          sleepBetweenIteration: 5
       - name: configSyncUpdate
         type: Bash
         configuration:
           #affinityGroup: together
-#           inputSteps:
-#             - name: Ping
+          inputSteps:
+            - name: Ping
           integrations:
             - name: {{ .Values.jpdMain }}
             - name: {{ .Values.jpdDr }}
