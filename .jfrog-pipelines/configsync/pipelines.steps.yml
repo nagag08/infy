@@ -46,3 +46,45 @@ pipelines:
               ls
               cat config-sync/yaml-input/input.yaml
             - echo jf {{ .Values.configPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
+            - jf {{ .Values.projectPlugin.name }} -v
+      - name: projectSyncUpdate
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: Ping
+          integrations:
+            - name: {{ .Values.jpdMain }}
+          cliPlugin: "{{ .Values.projectPlugin.name }}@{{ .Values.projectPlugin.version }}"
+        execution:
+          onExecute:
+            - jf c s
+            - jf {{ .Values.projectPlugin.name }} -v 
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - echo jf {{ .Values.projectPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
+            - jf {{ .Values.projectPlugin.name }} -v
+      - name: repoSyncUpdate
+        type: utils/bashV2
+        configuration:
+          #affinityGroup: together
+          inputSteps:
+            - name: Ping
+          integrations:
+            - name: {{ .Values.jpdMain }}
+          cliPlugin: "{{ .Values.cliPlugin.name }}@{{ .Values.cliPlugin.version }}"
+        execution:
+          onExecute:
+            - jf c s
+            - jf {{ .Values.cliPlugin.name }} -v 
+            - saas_main=$(echo {{ .Values.jpdMain }})
+            - url="int_${saas_main}_url"
+            - token="int_${saas_main}_accessToken"
+            - echo $url
+            - echo $token
+            - echo jf {{ .Values.cliPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
+            - jf {{ .Values.cliPlugin.name }} -v
+          
