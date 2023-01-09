@@ -6,6 +6,7 @@ myRepo:
 #   - yann_platform_token
 # to update DR, change below to dr_site
 jpdMain: main_site 
+jpdDr: dr_site 
 
 # automation config
 # Health check is running every 15 min (900 seconds)
