@@ -46,6 +46,13 @@ pipelines:
               jf c s
               jf rt ping --server-name "${!saas_main}"
               jf rt ping --server-name "${!saas_dr}"
+              export JFROG_CLI_LOG_LEVEL=DEBUG
+              echo "$JFROG_CLI_LOG_LEVEL - $JFROG_CLI_PLUGINS_SERVER - $JFROG_CLI_PLUGINS_REPO"
+              jf plugin install $cli_plugin
+              if [[ $? -eq 1 ]]; then
+                echo "[ERROR] Could not install or find the $cli_plugin CLI plugin."
+                 exit 1
+              fi 
             - jf {{ .Values.configPlugin.name }} -v 
             - |
               jf rt dl {{ .Values.automationRepo }}/config-sync/yaml-input/input.yaml input.yaml
@@ -76,6 +83,13 @@ pipelines:
               jf c s
               jf rt ping --server-name "${!saas_main}"
               jf rt ping --server-name "${!saas_dr}"
+              export JFROG_CLI_LOG_LEVEL=DEBUG
+              echo "$JFROG_CLI_LOG_LEVEL - $JFROG_CLI_PLUGINS_SERVER - $JFROG_CLI_PLUGINS_REPO"
+              jf plugin install $cli_plugin
+              if [[ $? -eq 1 ]]; then
+                echo "[ERROR] Could not install or find the $cli_plugin CLI plugin."
+                 exit 1
+              fi 
             - echo jf {{ .Values.projectPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
             - jf {{ .Values.projectPlugin.name }} -v
       - name: repoSyncUpdate
@@ -101,6 +115,13 @@ pipelines:
               jf c s
               jf rt ping --server-name "${!saas_main}"
               jf rt ping --server-name "${!saas_dr}"
+              export JFROG_CLI_LOG_LEVEL=DEBUG
+              echo "$JFROG_CLI_LOG_LEVEL - $JFROG_CLI_PLUGINS_SERVER - $JFROG_CLI_PLUGINS_REPO"
+              jf plugin install $cli_plugin
+              if [[ $? -eq 1 ]]; then
+                echo "[ERROR] Could not install or find the $cli_plugin CLI plugin."
+                 exit 1
+              fi 
             - echo jf {{ .Values.cliPlugin.name }} update {{ .Values.jpdMain }} --yaml-file="config-sync/yaml-input/input.yaml"  --dry-run=false
             - jf {{ .Values.cliPlugin.name }} -v
           
