@@ -1,9 +1,0 @@
-template: true   # required for local templates.
-valuesFilePath: ./values.yml
-
-resources:
-  - name: sync_cron
-    type: CronTrigger
-    configuration:
-#       interval: '0 */2 * * *'     # every 2 hours
-       interval: '0 0 1 1 1'     # every 1 year
